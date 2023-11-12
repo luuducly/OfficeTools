@@ -4,7 +4,10 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
     <Nullable>enable</Nullable>
+	<RepositoryUrl>https://github.com/luuducly/OfficeTools</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,12 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Template.docx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Template1.docx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+	  <None Include="README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
