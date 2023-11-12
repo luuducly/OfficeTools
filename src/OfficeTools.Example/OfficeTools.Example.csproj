@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="SampleData\**" />
+    <Compile Remove="Template\**" />
+    <EmbeddedResource Remove="SampleData\**" />
+    <EmbeddedResource Remove="Template\**" />
+    <None Remove="SampleData\**" />
+    <None Remove="Template\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OfficeTools\OfficeTools.csproj" />
+  </ItemGroup>
+
+</Project>

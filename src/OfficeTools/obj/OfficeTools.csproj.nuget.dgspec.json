@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\Desktop\\src\\OfficeTools\\OfficeTools.csproj": {}
+    "C:\\Users\\Admin\\Desktop\\github1\\src\\OfficeTools\\OfficeTools.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\Desktop\\src\\OfficeTools\\OfficeTools.csproj": {
+    "C:\\Users\\Admin\\Desktop\\github1\\src\\OfficeTools\\OfficeTools.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\src\\OfficeTools\\OfficeTools.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\github1\\src\\OfficeTools\\OfficeTools.csproj",
         "projectName": "OfficeTools",
-        "projectPath": "C:\\Users\\Admin\\Desktop\\src\\OfficeTools\\OfficeTools.csproj",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\github1\\src\\OfficeTools\\OfficeTools.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Desktop\\src\\OfficeTools\\obj\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\github1\\src\\OfficeTools\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -21,8 +21,8 @@
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.pkg.github.com/luuducly/index.json": {}
         },
         "frameworks": {
           "net6.0": {
