@@ -4,21 +4,21 @@ A library that supports filling data and exporting word from template.
 **1. Easy to design new template:**
     - Select text then insert a bookmark
 <p align="left">
-![select text then insert a bookmark](https://github.com/luuducly/OfficeTools/assets/69654714/ef495cb7-7f4e-4bce-99c4-4905783c12ac)
+    <img alt="select text then insert a bookmark" src="https://github.com/luuducly/OfficeTools/assets/69654714/ef495cb7-7f4e-4bce-99c4-4905783c12ac"/>
 </p>
     - Enter bookmark name, irrespective of lowercase or uppercase
 <p align="left">
-![enter bookmark name](https://github.com/luuducly/OfficeTools/assets/69654714/4bde70b1-a601-4100-8865-5c59c1e2cc60)
+    <img alt="enter bookmark name" src="https://github.com/luuducly/OfficeTools/assets/69654714/4bde70b1-a601-4100-8865-5c59c1e2cc60"/>
 </p>
     - Before or after inserted bookmark, you can continue to format your template as you want
 <p align="left">
-![continue to format your template](https://github.com/luuducly/OfficeTools/assets/69654714/7ef9f7cf-e8c1-40e9-b3f3-a81c198016e3)
+    <img alt="continue to format your template" src="https://github.com/luuducly/OfficeTools/assets/69654714/7ef9f7cf-e8c1-40e9-b3f3-a81c198016e3"/>
 </p>
 
 **2. Build-in support data type:** Text, Image, QrCode, BarCode, HTML, Document
     - Insert Image, QrCode or BarCode inside a Textbox shape for fixed frame size
 <p align="left">
-![insert an image bookmark inside textbox shape](https://github.com/luuducly/OfficeTools/assets/69654714/014157bb-3b47-4ab6-bf87-3da3db979ffc)
+    <img alt="insert an image bookmark inside textbox shape" src="https://github.com/luuducly/OfficeTools/assets/69654714/014157bb-3b47-4ab6-bf87-3da3db979ffc"/>
 </p>
 
    ```csharp
