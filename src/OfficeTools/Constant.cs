@@ -9,6 +9,7 @@ namespace OfficeTools
         public const long PIXEL_PER_INCH = 914400L;
         public const double DEFAULT_DPI = 95.9865952;
         public const int DEFAULT_BARCODE_HIGHT = 70;
+        public const int DEFAULT_BARCODE_BARWIDTH = 3;
         public const int DEFAULT_QRCODE_SIZE = 512;
         public static readonly SKColor DEFAULT_DARK_COLOR = SKColor.Parse("000000");
         public static readonly SKColor DEFAULT_LIGHT_COLOR = SKColor.Empty;

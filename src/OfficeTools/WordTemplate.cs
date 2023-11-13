@@ -80,6 +80,7 @@ namespace OfficeTools
                         FillData(targetDocument, data as JObject);
                     }
                 }
+                targetStream.Position = 0;
                 return targetStream;
             }
             return null;
@@ -93,7 +94,7 @@ namespace OfficeTools
             foreach (var item in _bmSettingDictionary.BookmarkSettings)
             {
                 var bmSetting = item.Value;
-                if (bmSetting.Bookmark.BookmarkStart == null || bmSetting.Bookmark.BookmarkStart == null)
+                if (bmSetting.Bookmark == null || bmSetting.Bookmark.BookmarkStart == null || bmSetting.Bookmark.BookmarkStart == null)
                 {
                     redanduntSettings.Add(item.Key);
                     continue;

@@ -9,15 +9,24 @@
 
   <ItemGroup>
     <Compile Remove="SampleData\**" />
-    <Compile Remove="Template\**" />
     <EmbeddedResource Remove="SampleData\**" />
-    <EmbeddedResource Remove="Template\**" />
     <None Remove="SampleData\**" />
-    <None Remove="Template\**" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OfficeTools\OfficeTools.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DataSamples\Data1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Equation.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Template1.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

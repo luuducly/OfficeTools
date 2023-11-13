@@ -1,0 +1,52 @@
+{
+    "Text": "Content of text field.",
+    "TextInShape": "Content of text field in a shape.",
+    "HTMLInShape": "Content of <a href='https://google.com'>HTML</a> field in a shape.",
+    "BarcodeInShape": "123-456-78",
+    "QrcodeInShape": "https://github.com/luuducly/OfficeTools",
+    "RepeatParaGraph": [
+        {
+            "RepeatNumber": "1st",
+            "RepeatPurpose": "for testing first time."
+        },
+        {
+            "RepeatNumber": "2nd",
+            "RepeatPurpose": "for testing second time."
+        },
+        {
+            "RepeatNumber": "3rd",
+            "RepeatPurpose": "for testing third time."
+        }
+    ],
+    "RepeatTable": [
+        {
+            "Order": 1,
+            "Name": "Brian",
+            "DOB": "20/05/1987"
+        },
+        {
+            "Order": 2,
+            "Name": "Wade",
+            "DOB": "02/10/1992"
+        },
+        {
+            "Order": 3,
+            "Name": "Carlos",
+            "DOB": "20/03/1986"
+        },
+        {
+            "Order": 4,
+            "Name": "Dave",
+            "DOB": "30/09/2014"
+        },
+        {
+            "Order": 5,
+            "Name": "Gilbert",
+            "DOB": "20/05/2017"
+        }
+    ],
+    "Toggle": null, //if remove this line, the text in the template will be shown
+    "FieldName": null,
+    "Header": "Header content.",
+    "Footer": "Footer content."
+}
