@@ -4,6 +4,8 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+	<Version>1.0.1</Version>
+	<VersionPrefix>1.0.1</VersionPrefix>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
     <Nullable>enable</Nullable>
