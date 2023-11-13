@@ -2,7 +2,6 @@
 A library that supports filling data and exporting word from template.
 
 **1. Easy to design new template:**
-
     - Select text then insert a bookmark
 <p align="left">
     <img alt="select text then insert a bookmark" src="https://github.com/luuducly/OfficeTools/assets/69654714/ef495cb7-7f4e-4bce-99c4-4905783c12ac"/>
@@ -17,7 +16,6 @@ A library that supports filling data and exporting word from template.
 </p>
 
 **2. Build-in support data type:** Text, Image, QrCode, BarCode, HTML, Document
-
     - Insert Image, QrCode or BarCode inside a Textbox shape for fixed frame size
 <p align="left">
     <img alt="insert an image bookmark inside textbox shape" src="https://github.com/luuducly/OfficeTools/assets/69654714/014157bb-3b47-4ab6-bf87-3da3db979ffc"/>
@@ -41,7 +39,6 @@ A library that supports filling data and exporting word from template.
   ```
 
 **3. Auto repeating depends on input data object**
-
 ```csharp
 var data = new { Name = "Mr. Smith", Dependants:["Peter", "Laura"] };
 using (FileStream fileStream = new FileStream("PATH_TO_YOUR_TEMPLATE\\Template.docx",
@@ -60,7 +57,6 @@ FileMode.Open, FileAccess.ReadWrite))
 ```
 
 **4. Flexible custom data type by creating new IReplacer**
-
 ```csharp
 internal class NewBarCodeReplacer : QRCodeReplacer, IReplacer
 {
