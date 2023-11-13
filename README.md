@@ -80,3 +80,5 @@ internal class NewBarCodeReplacer : QRCodeReplacer, IReplacer
 wordTemplate.Bookmarks["Name"].Replacer = new NewBarCodeReplacer();
 ```
 **5. Support both windows and linux OS**
+
+<a href='https://github.com/luuducly/OfficeTools/tree/main/src/OfficeTools.Example'>Please visit this link to find more examples!</a>
