@@ -47,9 +47,10 @@ FileMode.Open, FileAccess.ReadWrite))
     {
         wordTemplate.Bookmarks["Name"].DataType = OfficeTools.DataType.Text;
         wordTemplate.Bookmarks["Dependants"].DataType = OfficeTools.DataType.Text;
-        var newDoc = wordTemplate.Export(data);
-        newDoc.SaveAs("Output.docx");
-        newDoc.Dispose();
+        using (var newDoc = wordTemplate.Export(data))
+       {
+           newDoc.SaveAs("Output.docx");
+       }
     }
 }
 ```
