@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/qIuZsmRt3/7dgn/AO4q/vN04t2UHOMV5/2mTjmDqlnsfLvuwpBAolxvWlWu8nl+XKwCgojbA8t440af96g9/w==",
+  "dgSpecHash": "RY/xFdOV0xeExY6TneoIwKsZ/J7oXT2tMj5Mkv4w6v3fCjpaxBjXl/pE69WyrfJNaHGchArAiZP6sjcFD9D2Lg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Desktop\\github1\\src\\OfficeTools\\OfficeTools.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\Desktop\\OfficeTools\\src\\OfficeTools\\OfficeTools.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\barcodelib\\3.0.3\\barcodelib.3.0.3.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\documentformat.openxml\\2.20.0\\documentformat.openxml.2.20.0.nupkg.sha512",
