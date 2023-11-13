@@ -12,6 +12,7 @@ namespace OfficeTools
 {
     public interface IReplacer : IDisposable
     {
+        public JToken JData { get; internal set; }
         public object RawData { get; internal set; }
         public object FormatedData { get; internal set; }
         public object FormatData(object data);
@@ -21,6 +22,7 @@ namespace OfficeTools
 
     public class BaseReplacer : IReplacer
     {
+        public JToken JData { get; set; }
         public object RawData { get; set; }
         public object FormatedData { get; set; }
 

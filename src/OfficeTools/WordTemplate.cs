@@ -16,6 +16,7 @@ namespace OfficeTools
         }
         private BookmarkSettingDictionary _bmSettingDictionary;
 
+        private List<string> _bookmarkNames;
         private Stream _sourceStream;
 
         public WordTemplate(Stream sourceStream)
@@ -28,23 +29,60 @@ namespace OfficeTools
             _bmSettingDictionary = new BookmarkSettingDictionary();
         }
 
-        public WordprocessingDocument Export(object data)
+        public List<string> GetAllBoookmarks()
         {
-            MemoryStream targetStream = new MemoryStream();
-            _sourceStream.Position = 0;
-            _sourceStream.CopyTo(targetStream);
-            WordprocessingDocument targetDocument = WordprocessingDocument.Open(targetStream, true);
+            if (_bookmarkNames != null) return _bookmarkNames;
+
+            List<string?> results = new List<string?>();
+            using (Stream targetStream = Utils.CloneStream(_sourceStream))
+            {
+                if (targetStream != null)
+                {
+                    using (WordprocessingDocument document = WordprocessingDocument.Open(targetStream, true))
+                    {
+                        MainDocumentPart mainPart = document.MainDocumentPart;
+                        Document documentPart = mainPart.Document;
+
+                        //find bookmark templates in body part
+                        results.AddRange(documentPart.Body.Descendants<BookmarkStart>().Select(x => x.Name?.Value).Where(x => !string.Equals(x, "_GoBack", StringComparison.OrdinalIgnoreCase)).ToList());
+
+                        //find bookmark templates in header parts
+                        foreach (HeaderPart headerPart in mainPart.HeaderParts)
+                        {
+                            results.AddRange(headerPart.Header.Descendants<BookmarkStart>().Select(x => x.Name?.Value).Where(x => !string.Equals(x, "_GoBack", StringComparison.OrdinalIgnoreCase)).ToList());
+                        }
+
+                        //find bookmark templates in footer parts
+                        foreach (FooterPart footerPart in mainPart.FooterParts)
+                        {
+                            results.AddRange(footerPart.Footer.Descendants<BookmarkStart>().Select(x => x.Name?.Value).Where(x => !string.Equals(x, "_GoBack", StringComparison.OrdinalIgnoreCase)).ToList());
+                        }
+                    }
+                }
+            }
+            _bookmarkNames = results.Distinct().Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToString()).ToList();
+            return _bookmarkNames;
+        }
+
+        public Stream Export(object data)
+        {
             if (data != null)
             {
-                //TODO: support docx for word 2007
-                Utils.RemoveFallbackElements(targetDocument);
-                PrepareBookmarkSettings(targetDocument);
+                Stream targetStream = Utils.CloneStream(_sourceStream);
+                if (targetStream != null)
+                {
+                    using (WordprocessingDocument targetDocument = WordprocessingDocument.Open(targetStream, true))
+                    {
+                        Utils.RemoveFallbackElements(targetDocument);
+                        PrepareBookmarkSettings(targetDocument);
 
-                if (data is not JObject) data = JObject.FromObject(data);
-                FillData(targetDocument, data as JObject);
-                targetDocument.Save();
+                        if (data is not JObject) data = JObject.FromObject(data);
+                        FillData(targetDocument, data as JObject);
+                    }
+                }
+                return targetStream;
             }
-            return targetDocument;
+            return null;
         }
 
         private void PrepareBookmarkSettings(WordprocessingDocument document)
@@ -52,20 +90,20 @@ namespace OfficeTools
             FindBookmarkNodes(document);
             List<string> redanduntSettings = new List<string>();
 
-            foreach(var item in _bmSettingDictionary.BookmarkSettings)
+            foreach (var item in _bmSettingDictionary.BookmarkSettings)
             {
                 var bmSetting = item.Value;
                 if (bmSetting.Bookmark.BookmarkStart == null || bmSetting.Bookmark.BookmarkStart == null)
                 {
                     redanduntSettings.Add(item.Key);
                     continue;
-                }    
-                    
+                }
+
                 if (bmSetting.Replacer == null)
                     bmSetting.Replacer = Utils.GetDefaultFormatter(bmSetting.DataType);
             }
 
-            foreach(var key in redanduntSettings)
+            foreach (var key in redanduntSettings)
             {
                 _bmSettingDictionary.Remove(key);
             }
@@ -201,6 +239,7 @@ namespace OfficeTools
                                     int index = 0;
                                     foreach (JValue subItem in arrData)
                                     {
+                                        bookmarkSetting.Replacer.JData = subItem;
                                         bookmarkSetting.Replacer.RawData = subItem.Value;
                                         bookmarkSetting.Replacer.FormatedData = bookmarkSetting.Replacer.FormatData(bookmarkSetting.Replacer.RawData);
                                         var elements = bookmarkSetting.Replacer.GenerateElements(document, bookmarkSetting.Bookmark);
@@ -222,28 +261,22 @@ namespace OfficeTools
                     if (_bmSettingDictionary.ContainsKey(propName))
                     {
                         var bookmarkSetting = _bmSettingDictionary[propName];
-                        if (propData != null)
+                        bookmarkSetting.Replacer.JData = propData;
+                        if (propData is JValue)
                         {
-                            if (propData is JValue)
-                            {
-                                bookmarkSetting.Replacer.RawData = (propData as JValue).Value;
-                                bookmarkSetting.Replacer.FormatedData = bookmarkSetting.Replacer.FormatData(bookmarkSetting.Replacer.RawData);
-                                var elements = bookmarkSetting.Replacer.GenerateElements(document, bookmarkSetting.Bookmark);
-                                bookmarkSetting.Replacer.InsertElements(elements, document, bookmarkSetting.Bookmark);
-                            }
-                            else
-                            {
-                                bookmarkSetting.Replacer.RawData = propData;
-                                bookmarkSetting.Replacer.FormatedData = bookmarkSetting.Replacer.FormatData(bookmarkSetting.Replacer.RawData);
-                                var elements = bookmarkSetting.Replacer.GenerateElements(document, bookmarkSetting.Bookmark);
-                                bookmarkSetting.Replacer.InsertElements(elements, document, bookmarkSetting.Bookmark);
-                            }
-                            Utils.DeleteRedundantElements(bookmarkSetting.Bookmark);
+                            bookmarkSetting.Replacer.RawData = (propData as JValue).Value;
+                            bookmarkSetting.Replacer.FormatedData = bookmarkSetting.Replacer.FormatData(bookmarkSetting.Replacer.RawData);
+                            var elements = bookmarkSetting.Replacer.GenerateElements(document, bookmarkSetting.Bookmark);
+                            bookmarkSetting.Replacer.InsertElements(elements, document, bookmarkSetting.Bookmark);
                         }
                         else
                         {
-                            Utils.DeleteRedundantElements(bookmarkSetting.Bookmark);
+                            bookmarkSetting.Replacer.RawData = propData;
+                            bookmarkSetting.Replacer.FormatedData = bookmarkSetting.Replacer.FormatData(bookmarkSetting.Replacer.RawData);
+                            var elements = bookmarkSetting.Replacer.GenerateElements(document, bookmarkSetting.Bookmark);
+                            bookmarkSetting.Replacer.InsertElements(elements, document, bookmarkSetting.Bookmark);
                         }
+                        Utils.DeleteRedundantElements(bookmarkSetting.Bookmark);
                     }
                 }
             }

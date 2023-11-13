@@ -508,6 +508,20 @@ namespace OfficeTools
         {
             return "r" + Guid.NewGuid().ToString().Replace("-", "");
         }
+
+        internal static Stream CloneStream(Stream stream)
+        {
+            if(stream != null && stream.CanSeek)
+            {
+                stream.Position = 0;
+                MemoryStream newStream = new MemoryStream();
+                stream.CopyTo(newStream);
+                stream.Position = 0;
+                newStream.Position = 0;
+                return newStream;
+            }
+            return null;
+        }
     }
 
     internal class Size
