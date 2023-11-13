@@ -346,8 +346,9 @@ namespace OfficeTools
         {
             var barCode = new Barcode();
             barCode.Height = Constant.DEFAULT_BARCODE_HIGHT;
+            barCode.BarWidth = Constant.DEFAULT_BARCODE_BARWIDTH;
             var img = barCode.Encode(BarcodeStandard.Type.Code128, data, Constant.DEFAULT_DARK_COLOR, Constant.DEFAULT_LIGHT_COLOR);
-            SKData encoded = img.Encode();
+            SKData encoded = img.Encode(SKEncodedImageFormat.Png, 100);
             var stream = encoded.AsStream();
             stream.Position = 0;
             return stream;
@@ -442,9 +443,10 @@ namespace OfficeTools
         {
             if (arr == null) return new List<string>();
             var repeatProperties = new List<string>();
-            foreach (JObject item in arr)
+            foreach (var item in arr)
             {
-                repeatProperties.AddRange(GetAllRepeatProperties(item));
+                if(item is JObject)
+                    repeatProperties.AddRange(GetAllRepeatProperties((JObject)item));
             }
             return repeatProperties.Distinct().ToList();
         }
@@ -460,7 +462,7 @@ namespace OfficeTools
                 {
                     repeatProperties.AddRange(GetAllRepeatProperties((JArray)subItem.Value));
                 }
-                else
+                else if (subItem.Value is JObject)
                 {
                     repeatProperties.AddRange(GetAllRepeatProperties((JObject)subItem.Value));
                 }
@@ -471,13 +473,14 @@ namespace OfficeTools
         internal static void DeleteRedundantElements(Bookmark bookmark)
         {
             OpenXmlElement curentNode = bookmark.BookmarkStart.NextSibling();
+            List<OpenXmlElement> nodesToRemove = new List<OpenXmlElement>();
             while (curentNode != null)
             {
                 if (curentNode == bookmark.BookmarkEnd)
                     break;
 
-                if (curentNode is not (BookmarkStart or BookmarkEnd) && !curentNode.Descendants<BookmarkEnd>().Any(bm => bm == bookmark.BookmarkEnd))
-                    curentNode.Remove();
+                if (curentNode is not (BookmarkStart or BookmarkEnd) && !curentNode.Descendants<BookmarkEnd>().Any(bm => bm == bookmark.BookmarkEnd) && !nodesToRemove.Contains(curentNode))
+                    nodesToRemove.Add(curentNode);
 
                 curentNode = curentNode.NextSibling();
             }
@@ -488,11 +491,13 @@ namespace OfficeTools
                 if (curentNode == bookmark.BookmarkStart)
                     break;
 
-                if (curentNode is not (BookmarkStart or BookmarkEnd) && !curentNode.Descendants<BookmarkStart>().Any(bm => bm == bookmark.BookmarkStart))
-                    curentNode.Remove();
+                if (curentNode is not (BookmarkStart or BookmarkEnd) && !curentNode.Descendants<BookmarkStart>().Any(bm => bm == bookmark.BookmarkStart) && !nodesToRemove.Contains(curentNode))
+                    nodesToRemove.Add(curentNode);
 
                 curentNode = curentNode.PreviousSibling();
             }
+
+            nodesToRemove.ForEach(node => node.Remove());
 
             bookmark.BookmarkStart.Remove();
             bookmark.BookmarkEnd.Remove();
