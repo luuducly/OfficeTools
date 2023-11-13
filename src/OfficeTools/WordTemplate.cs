@@ -215,7 +215,7 @@ namespace OfficeTools
                         {
                             if (firstItem is JObject)
                             {
-                                var repeatProperties = Utils.GetAllRepeatProperties(firstItem as JObject);
+                                var repeatProperties = Utils.GetAllRepeatProperties(arrData);
                                 var bookmarks = _bmSettingDictionary.Bookmarks.Where(x => repeatProperties.Any(p => string.Compare(p, x.Key, true) == 0)).Select(x => x.Value).ToList();
                                 var template = Utils.GetRepeatingTemplate(bookmarks);
                                 int index = 0;

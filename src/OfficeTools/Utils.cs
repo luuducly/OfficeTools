@@ -34,7 +34,7 @@ namespace OfficeTools
             foreach (var alternative in documentPart.Body.Descendants<AlternateContent>())
             {
                 var choice = alternative.Descendants<AlternateContentChoice>().FirstOrDefault();
-                if(choice != null)
+                if (choice != null)
                 {
                     var clonedNodes = choice.ChildElements.Select(x => x.CloneNode(true)).ToList();
                     clonedNodes.ForEach(node => alternative.InsertBeforeSelf(node));
@@ -293,7 +293,7 @@ namespace OfficeTools
 
         internal static void UpdateImageIdAndSize(OpenXmlElement element, string imageId, Size size)
         {
-            if (element != null )
+            if (element != null)
             {
                 var blip = element.Descendants<DRAW.Blip>().FirstOrDefault();
                 if (blip != null) blip.Embed = imageId;
@@ -438,23 +438,34 @@ namespace OfficeTools
             return null;
         }
 
+        internal static List<string> GetAllRepeatProperties(JArray arr)
+        {
+            if (arr == null) return new List<string>();
+            var repeatProperties = new List<string>();
+            foreach (JObject item in arr)
+            {
+                repeatProperties.AddRange(GetAllRepeatProperties(item));
+            }
+            return repeatProperties.Distinct().ToList();
+        }
+
         internal static List<string> GetAllRepeatProperties(JObject item)
         {
             if (item == null) return new List<string>();
-            var repeatProperties = item.Properties().Select(p => p.Name).ToList();
+            var repeatProperties = new List<string>();
+            repeatProperties.AddRange(item.Properties().Select(p => p.Name).ToList());
             foreach (var subItem in item)
             {
-                var subItemArr = subItem.Value as JArray;
-                if (subItemArr != null)
+                if (subItem.Value is JArray)
                 {
-                    if (subItemArr.Count > 0)
-                    {
-                        repeatProperties.AddRange(GetAllRepeatProperties(subItemArr[0] as JObject));
-                    }
-
+                    repeatProperties.AddRange(GetAllRepeatProperties((JArray)subItem.Value));
+                }
+                else
+                {
+                    repeatProperties.AddRange(GetAllRepeatProperties((JObject)subItem.Value));
                 }
             }
-            return repeatProperties;
+            return repeatProperties.Distinct().ToList();
         }
 
         internal static void DeleteRedundantElements(Bookmark bookmark)
@@ -511,7 +522,7 @@ namespace OfficeTools
 
         internal static Stream CloneStream(Stream stream)
         {
-            if(stream != null && stream.CanSeek)
+            if (stream != null && stream.CanSeek)
             {
                 stream.Position = 0;
                 MemoryStream newStream = new MemoryStream();

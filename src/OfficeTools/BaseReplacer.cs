@@ -33,16 +33,17 @@ namespace OfficeTools
 
         public virtual List<OpenXmlElement> GenerateElements(WordprocessingDocument document, Bookmark bookmark)
         {
-            List<OpenXmlElement> elements = new List<OpenXmlElement>();
             if (FormatedData != null)
             {
+                List<OpenXmlElement> elements = new List<OpenXmlElement>();
                 var style = Utils.CloneStyle(bookmark);
                 var run = style is null
                     ? new Run(new Text(FormatedData.ToString()))
                     : new Run(style, new Text(FormatedData.ToString()));
                 elements.Add(run);
+                return elements;
             }
-            return elements;
+            return null;
         }
 
         public virtual void InsertElements(List<OpenXmlElement> elements, WordprocessingDocument document, Bookmark bookmark)
@@ -71,16 +72,19 @@ namespace OfficeTools
         {
             if (data != null)
                 return new MemoryStream(Convert.FromBase64String(data.ToString()));
-            else
-                return null;
+            return null;
         }
 
         public virtual List<OpenXmlElement> GenerateElements(WordprocessingDocument document, Bookmark bookmark)
         {
-            List<OpenXmlElement> elements = new List<OpenXmlElement>();
-            var imgElement = Utils.CreateNewPictureElement(Guid.NewGuid().ToString(), 0, 0);
-            elements.Add(imgElement);
-            return elements;
+            if (FormatedData != null)
+            {
+                List<OpenXmlElement> elements = new List<OpenXmlElement>();
+                var imgElement = Utils.CreateNewPictureElement(Guid.NewGuid().ToString(), 0, 0);
+                elements.Add(imgElement);
+                return elements;
+            }
+            return null;
         }
 
         public virtual void InsertElements(List<OpenXmlElement> elements, WordprocessingDocument document, Bookmark bookmark)
@@ -164,9 +168,7 @@ namespace OfficeTools
         public override object FormatData(object data)
         {
             if (data != null)
-            {
                 return Utils.GetBarCodeImage(data.ToString());
-            }
             return null;
         }
     }
@@ -176,9 +178,7 @@ namespace OfficeTools
         public override object FormatData(object data)
         {
             if (data != null)
-            {
                 return Utils.GetQRCodeImage(data.ToString());
-            }
             return null;
         }
     }
@@ -187,9 +187,9 @@ namespace OfficeTools
     {
         public override List<OpenXmlElement> GenerateElements(WordprocessingDocument document, Bookmark bookmark)
         {
-            var elements = new List<OpenXmlElement>();
             if (FormatedData != null)
             {
+                var elements = new List<OpenXmlElement>();
                 MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(string.Format(Constant.HTML_PATTERN, FormatedData)));
                 AlternativeFormatImportPart formatImportPart = null;
                 if (bookmark.ParentPart is MainDocumentPart)
@@ -206,9 +206,10 @@ namespace OfficeTools
                     altChunk.Id = bookmark.ParentPart.GetIdOfPart(formatImportPart);
                     elements.Add(new Run(altChunk));
                 }
-                stream.Dispose();                
+                stream.Dispose();
+                return elements;
             }
-            return elements;
+            return null;
         }
     }
 
@@ -221,6 +222,11 @@ namespace OfficeTools
                 Stream stream = new MemoryStream(Convert.FromBase64String(data.ToString()));
                 return WordprocessingDocument.Open(stream, false);
             }
+            return null;
+        }
+
+        public override List<OpenXmlElement> GenerateElements(WordprocessingDocument document, Bookmark bookmark)
+        {
             return null;
         }
 
