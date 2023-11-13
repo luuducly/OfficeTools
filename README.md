@@ -30,9 +30,13 @@ A library that supports filling data and exporting word from template.
       {
           wordTemplate.Bookmarks["Name"].DataType = OfficeTools.DataType.Text;
           wordTemplate.Bookmarks["Avatar"].DataType = OfficeTools.DataType.Image;
-          using (var newDoc = wordTemplate.Export(data))
+          using (var docStream = wordTemplate.Export(data))
           {
-              newDoc.SaveAs("Output.docx");
+              using (var newFileStream = File.Create("Output.docx"))
+              {
+                  docStream.Seek(0, SeekOrigin.Begin);
+                  docStream.CopyTo(newFileStream);
+              }
           }
       }
   }
@@ -48,9 +52,13 @@ FileMode.Open, FileAccess.ReadWrite))
     {
         wordTemplate.Bookmarks["Name"].DataType = OfficeTools.DataType.Text;
         wordTemplate.Bookmarks["Dependants"].DataType = OfficeTools.DataType.Text;
-        using (var newDoc = wordTemplate.Export(data))
+        using (var docStream = wordTemplate.Export(data))
        {
-           newDoc.SaveAs("Output.docx");
+            using (var newFileStream = File.Create("Output.docx"))
+            {
+                docStream.Seek(0, SeekOrigin.Begin);
+                docStream.CopyTo(newFileStream);
+            }
        }
     }
 }
