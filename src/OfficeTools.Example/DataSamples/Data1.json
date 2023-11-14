@@ -45,7 +45,7 @@
             "DOB": "20/05/2017"
         }
     ],
-    "Toggle": null, //if remove this line, the text in the template will be shown
+    "Toggle": null,
     "FieldName": null,
     "Header": "Header content.",
     "Footer": "Footer content."
