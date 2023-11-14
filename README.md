@@ -1,6 +1,11 @@
 # OfficeTools
 A useful cross-platform library to export Word template with repeating data, image, QR code...
 
+Install [OfficeTools package](https://www.nuget.org/packages/OfficeTools) and its dependencies using NuGet Package Manager:
+```powershell
+Install-Package OfficeTools 
+```
+
 **1. Easy to design new template:**<br/>
 <p align="left">
     <img alt="select text then insert a bookmark" src="https://github.com/luuducly/OfficeTools/assets/69654714/26426e2e-dd83-420e-a6c0-8a78b1109eb9"/>
