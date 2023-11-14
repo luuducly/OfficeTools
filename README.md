@@ -1,5 +1,5 @@
 # OfficeTools
-A library that supports filling data and exporting word from template.
+A useful cross-platform library to export Word template with repeating data, image, QR code...
 
 **1. Easy to design new template:**<br/>
 <p align="left">
