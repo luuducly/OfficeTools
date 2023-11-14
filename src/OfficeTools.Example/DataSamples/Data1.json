@@ -7,15 +7,15 @@
     "RepeatParaGraph": [
         {
             "RepeatNumber": "1st",
-            "RepeatPurpose": "for testing first time."
+            "RepeatPurpose": "testing first time."
         },
         {
             "RepeatNumber": "2nd",
-            "RepeatPurpose": "for testing second time."
+            "RepeatPurpose": "testing second time."
         },
         {
             "RepeatNumber": "3rd",
-            "RepeatPurpose": "for testing third time."
+            "RepeatPurpose": "testing third time."
         }
     ],
     "RepeatTable": [
