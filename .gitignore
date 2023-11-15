@@ -9,3 +9,8 @@ Z.Lab/
 _ReSharper.*
 *.ReSharper.user
 *.resharper.user 
+.sonarqube
+private_scan_snoarqube.bat
+bin
+obj
+/src/OfficeTools/obj
