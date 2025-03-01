@@ -1,325 +1,100 @@
-﻿using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
-using DRAW = DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Wordprocessing;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Drawing.Wordprocessing;
+﻿using DocumentFormat.OpenXml;
 using Newtonsoft.Json.Linq;
 using SkiaSharp.QrCode;
 using BarcodeStandard;
 using SkiaSharp;
-using DocumentFormat.OpenXml.Packaging;
+using System.Text.RegularExpressions;
+using Microsoft.VisualBasic;
 
 namespace OfficeTools
 {
     internal class Utils
     {
-        internal static IReplacer GetDefaultFormatter(DataType type)
+        internal static List<object> PaserParametters(string parametters)
         {
-            switch (type)
+            var returnList = new List<object>();
+            if (!string.IsNullOrEmpty(parametters))
             {
-                case DataType.Image: return new ImageReplacer();
-                case DataType.BarCode: return new BarCodeReplacer();
-                case DataType.QRCode: return new QRCodeReplacer();
-                case DataType.HTML: return new HTMLReplacer();
-                case DataType.Document: return new DocumentReplacer();
-                default: return new BaseReplacer();
+                var paramList = ParseParameters(parametters.Replace("\\\"", "\""));
+
+                foreach (var p in paramList)
+                {
+                    returnList.Add(ConvertStringValue(p));
+                }
             }
+            return returnList;
         }
 
-        internal static void RemoveFallbackElements(WordprocessingDocument document)
+        public static List<string> ParseParameters(string input)
         {
-            MainDocumentPart mainPart = document.MainDocumentPart;
-            Document documentPart = mainPart.Document;
+            var parameters = new List<string>();
 
-            foreach (var alternative in documentPart.Body.Descendants<AlternateContent>())
+            var regex = new Regex(Constant.PARSER_PARAM_REGEX);
+
+            var matches = regex.Matches(input);
+            foreach (Match match in matches)
             {
-                var choice = alternative.Descendants<AlternateContentChoice>().FirstOrDefault();
-                if (choice != null)
+                if (match.Groups[1].Success)
                 {
-                    var clonedNodes = choice.ChildElements.Select(x => x.CloneNode(true)).ToList();
-                    clonedNodes.ForEach(node => alternative.InsertBeforeSelf(node));
-                    alternative.Remove();
+                    parameters.Add(match.Groups[1].Value);
+                }
+                else if (match.Groups[2].Success)
+                {
+                    parameters.Add(match.Groups[2].Value);
+                }
+                else if (match.Groups[3].Success)
+                {
+                    parameters.Add(match.Groups[3].Value.Trim());
                 }
             }
 
-            foreach (HeaderPart headerPart in mainPart.HeaderParts)
-            {
-                foreach (var alternative in headerPart.Header.Descendants<AlternateContent>())
-                {
-                    var choice = alternative.Descendants<AlternateContentChoice>().FirstOrDefault();
-                    if (choice != null)
-                    {
-                        var clonedNodes = choice.ChildElements.Select(x => x.CloneNode(true)).ToList();
-                        clonedNodes.ForEach(node => alternative.InsertBeforeSelf(node));
-                        alternative.Remove();
-                    }
-                }
-            }
-
-            foreach (FooterPart footerPart in mainPart.FooterParts)
-            {
-                foreach (var alternative in footerPart.Footer.Descendants<AlternateContent>())
-                {
-                    var choice = alternative.Descendants<AlternateContentChoice>().FirstOrDefault();
-                    if (choice != null)
-                    {
-                        var clonedNodes = choice.ChildElements.Select(x => x.CloneNode(true)).ToList();
-                        clonedNodes.ForEach(node => alternative.InsertBeforeSelf(node));
-                        alternative.Remove();
-                    }
-                }
-            }
+            return parameters;
         }
 
-        internal static void CorrectBookmarkTagsPosition(Bookmark bookmark)
+        internal static object ConvertStringValue(string value)
         {
-            var currentNode = bookmark.BookmarkStart.NextSibling();
-            if (currentNode == null) currentNode = bookmark.BookmarkStart.Parent?.NextSibling();
-            while (currentNode != null)
+            if (string.IsNullOrEmpty(value)) return string.Empty;
+
+            if (int.TryParse(value, out var intVal)) return intVal;
+
+            if (double.TryParse(value, out var dbVal)) return dbVal;
+
+            if (decimal.TryParse(value, out var dcVal)) return dcVal;
+
+            if (DateTime.TryParse(value, out var dtVal)) return dtVal;
+
+            if (bool.TryParse(value, out var blVal)) return blVal;
+
+            return value.ToString();
+        }
+
+        public static CompareValue CompareObjects(object obj1, object obj2)
+        {
+            if (obj1 != null && obj2 != null)
             {
-                if (currentNode is Run)
+                System.Type type1 = obj1.GetType();
+                System.Type type2 = obj2.GetType();
+
+                if (type1 != type2)
                 {
-                    bookmark.BookmarkStart.Remove();
-                    currentNode.InsertBeforeSelf(bookmark.BookmarkStart);
-                    break;
+                    return CompareValue.Lt | CompareValue.Gt;
+                }
+
+                if (obj1 is IComparable comparable1 && obj2 is IComparable comparable2)
+                {
+                    var i = comparable1.CompareTo(comparable2);
+                    if (i < 0) return CompareValue.Lt;
+                    else if (i > 0) return CompareValue.Gt;
+                    else return CompareValue.Eq;
+
                 }
                 else
                 {
-                    var firstRun = currentNode.Descendants<Run>().FirstOrDefault();
-                    if (firstRun != null)
-                    {
-                        bookmark.BookmarkStart.Remove();
-                        firstRun.InsertBeforeSelf(bookmark.BookmarkStart);
-                        break;
-                    }
-                }
-                if (currentNode == bookmark.BookmarkEnd || currentNode.Descendants<BookmarkEnd>().Any(bme => bme == bookmark.BookmarkEnd)) break;
-
-                if (currentNode.NextSibling() != null) currentNode = currentNode.NextSibling();
-                else currentNode = currentNode.Parent?.NextSibling();
-            }
-
-            currentNode = bookmark.BookmarkEnd.PreviousSibling();
-            if (currentNode == null) currentNode = bookmark.BookmarkEnd.Parent?.PreviousSibling();
-            while (currentNode != null)
-            {
-                if (currentNode is Run)
-                {
-                    bookmark.BookmarkEnd.Remove();
-                    currentNode.InsertAfterSelf(bookmark.BookmarkEnd);
-                    break;
-                }
-                else
-                {
-                    var firstRun = currentNode.Descendants<Run>().LastOrDefault();
-                    if (firstRun != null)
-                    {
-                        bookmark.BookmarkEnd.Remove();
-                        firstRun.InsertAfterSelf(bookmark.BookmarkEnd);
-                        break;
-                    }
-                }
-                if (currentNode == bookmark.BookmarkStart || currentNode.Descendants<BookmarkStart>().Any(bme => bme == bookmark.BookmarkStart)) break;
-
-                if (currentNode.PreviousSibling() != null) currentNode = currentNode.PreviousSibling();
-                else currentNode = currentNode.Parent?.PreviousSibling(); ;
-            }
-        }
-
-        internal static BookmarkTemplate GetRepeatingTemplate(List<Bookmark> bookmarks)
-        {
-            BookmarkTemplate bookmarkTemplate = new BookmarkTemplate();
-            if (bookmarks.Count == 0) return bookmarkTemplate;
-
-            //find the ascendant of both start and end bookmark node
-            BookmarkStart bmStart = bookmarks[0].BookmarkStart;
-            OpenXmlElement parentNode = bmStart.Parent;
-            for (int i = 0; i < bookmarks.Count; i++)
-            {
-                while (parentNode != null && !parentNode.Descendants<BookmarkStart>().Any(el => el == bookmarks[i].BookmarkStart))
-                {
-                    parentNode = parentNode.Parent;
-                }
-
-                while (parentNode != null && !parentNode.Descendants<BookmarkEnd>().Any(el => el == bookmarks[i].BookmarkEnd))
-                {
-                    parentNode = parentNode.Parent;
+                    return CompareValue.Lt | CompareValue.Gt;
                 }
             }
 
-            //only support repeat TableRow or Paragraph nodes
-            if (parentNode is Paragraph or TableRow)
-            {
-                parentNode = parentNode.Parent;
-            }
-
-            if (parentNode != null)
-            {
-                OpenXmlElement lastChildNode = null;
-                OpenXmlElement startNode = null, endNode = null;
-
-                foreach (OpenXmlElement childNode in parentNode.ChildElements)
-                {
-                    if ((childNode is BookmarkStart && bookmarks.Any(bm => bm.BookmarkStart == childNode)) || childNode.Descendants<BookmarkStart>().Any(el => bookmarks.Any(bm => bm.BookmarkStart == el)))
-                    {
-                        startNode = childNode;
-                        break;
-                    }
-                }
-
-                foreach (OpenXmlElement childNode in parentNode.ChildElements.Reverse())
-                {
-                    if ((childNode is BookmarkEnd && bookmarks.Any(bm => bm.BookmarkEnd == childNode)) || childNode.Descendants<BookmarkEnd>().Any(el => bookmarks.Any(bm => bm.BookmarkEnd == el)))
-                    {
-                        endNode = childNode;
-                        break;
-                    }
-                }
-
-                if (startNode == endNode)
-                {
-                    bookmarkTemplate.TemplateElements.Add(startNode.CloneNode(true));
-                    lastChildNode = endNode;
-                }
-                else
-                {
-                    var templateNode = startNode;
-                    while (templateNode != null)
-                    {
-                        bookmarkTemplate.TemplateElements.Add(templateNode.CloneNode(true));
-                        lastChildNode = templateNode;
-
-                        if (templateNode == endNode) break;
-                        templateNode = templateNode.NextSibling();
-                    }
-                }
-
-                if (lastChildNode != null)
-                {
-                    if (lastChildNode.NextSibling() != null)
-                        bookmarkTemplate.LastNode = lastChildNode.NextSibling();
-                    else
-                        bookmarkTemplate.ParentNode = lastChildNode.Parent;
-                }
-            }
-
-            return bookmarkTemplate;
-        }
-
-        internal static ImagePart AddImagePart(TypedOpenXmlPart parentPart)
-        {
-            ImagePart imagePart = null;
-            if (parentPart is HeaderPart)
-            {
-                imagePart = ((HeaderPart)parentPart).AddImagePart(ImagePartType.Png);
-            }
-            else if (parentPart is MainDocumentPart)
-            {
-                imagePart = ((MainDocumentPart)parentPart).AddImagePart(ImagePartType.Png);
-            }
-            else if (parentPart is FooterPart)
-            {
-                imagePart = ((FooterPart)parentPart).AddImagePart(ImagePartType.Png);
-            }
-            return imagePart;
-        }
-
-        internal static OpenXmlElement CreateNewDrawingElement(OpenXmlElement image, Size size)
-        {
-            string name = Guid.NewGuid().ToString();
-            var element =
-                new Drawing(
-                    new Inline(
-                        new Extent() { Cx = size.Width, Cy = size.Height },
-                        new EffectExtent()
-                        {
-                            LeftEdge = 0L,
-                            TopEdge = 0L,
-                            RightEdge = 0L,
-                            BottomEdge = 0L
-                        },
-                        new DocProperties()
-                        {
-                            Id = GetUintId(),
-                            Name = name
-                        },
-                        new NonVisualGraphicFrameDrawingProperties(
-                            new DRAW.GraphicFrameLocks() { NoChangeAspect = true }),
-                        new DRAW.Graphic(
-                            new DRAW.GraphicData(
-                                    image
-                                )
-                            { Uri = Constant.PICTURE_NAMESPACE })
-                    )
-                    {
-                        DistanceFromTop = 0U,
-                        DistanceFromBottom = 0U,
-                        DistanceFromLeft = 0U,
-                        DistanceFromRight = 0U,
-                        EditId = GetRandomHexNumber(8)
-                    });
-            return element;
-        }
-
-        internal static PIC.Picture CreateNewPictureElement(string fileName, long width, long height)
-        {
-            return new PIC.Picture(
-                new PIC.NonVisualPictureProperties(
-                    new PIC.NonVisualDrawingProperties()
-                    {
-                        Id = GetUintId(),
-                        Name = fileName + ".png"
-                    },
-                    new PIC.NonVisualPictureDrawingProperties()),
-                new PIC.BlipFill(
-                    new DRAW.Blip(
-                        new DRAW.BlipExtensionList()
-                    )
-                    {
-                        CompressionState =
-                            DRAW.BlipCompressionValues.Print
-                    },
-                    new DRAW.Stretch(
-                        new DRAW.FillRectangle())),
-                new PIC.ShapeProperties(
-                    new DRAW.Transform2D(
-                        new DRAW.Offset() { X = 0L, Y = 0L },
-                        new DRAW.Extents() { Cx = width, Cy = height }),
-                    new DRAW.PresetGeometry(
-                            new DRAW.AdjustValueList()
-                        )
-                    { Preset = DRAW.ShapeTypeValues.Rectangle }));
-        }
-
-        internal static void UpdateImageIdAndSize(OpenXmlElement element, string imageId, Size size)
-        {
-            if (element != null)
-            {
-                var blip = element.Descendants<DRAW.Blip>().FirstOrDefault();
-                if (blip != null) blip.Embed = imageId;
-                var extents = element.Descendants<DRAW.Extents>().FirstOrDefault();
-                if (extents != null)
-                {
-                    extents.Cx = size.Width;
-                    extents.Cy = size.Height;
-                }
-            }
-        }
-
-        internal static void GenerateNewIdAndName(OpenXmlElement element)
-        {
-            if (element != null)
-            {
-                foreach (var drawing in element.Descendants<Drawing>())
-                {
-                    var prop = drawing.Descendants<DocProperties>().FirstOrDefault();
-                    if (prop != null)
-                    {
-                        prop.Id = GetUintId();
-                        prop.Name = GetUniqueStringID();
-                    }
-                }
-            }
+            return CompareValue.Lt | CompareValue.Gt;
         }
 
         internal static Stream GetQRCodeImage(string data)
@@ -342,6 +117,23 @@ namespace OfficeTools
             }
         }
 
+        internal static byte[] GetQRCodeImageBytes(string data)
+        {
+            var generator = new QRCodeGenerator();
+            var qr = generator.CreateQrCode(data, ECCLevel.L, quietZoneSize: 1);
+            var info = new SKImageInfo(Constant.DEFAULT_QRCODE_SIZE, Constant.DEFAULT_QRCODE_SIZE);
+            using var surface = SKSurface.Create(info);
+            var canvas = surface.Canvas;
+            canvas.Render(qr, info.Width, info.Height, Constant.DEFAULT_DARK_COLOR, Constant.DEFAULT_LIGHT_COLOR);
+            using (var image = surface.Snapshot())
+            {
+                using (var imgData = image.Encode(SKEncodedImageFormat.Png, 100))
+                {
+                    return imgData.ToArray();
+                }
+            }
+        }
+
         internal static Stream? GetBarCodeImage(string data)
         {
             var barCode = new Barcode();
@@ -354,16 +146,14 @@ namespace OfficeTools
             return stream;
         }
 
-        internal static Size GetShapeSize(DRAW.Extents extents)
+        internal static byte[]? GetBarCodeImageBytes(string data)
         {
-            if (extents != null)
-            {
-                Int64Value? w = extents.Cx;
-                Int64Value? h = extents.Cy;
-                if (w.HasValue && h.HasValue)
-                    return new Size(w.Value, h.Value);
-            }
-            return null;
+            var barCode = new Barcode();
+            barCode.Height = Constant.DEFAULT_BARCODE_HIGHT;
+            barCode.BarWidth = Constant.DEFAULT_BARCODE_BARWIDTH;
+            var img = barCode.Encode(BarcodeStandard.Type.Code128, data, Constant.DEFAULT_DARK_COLOR, Constant.DEFAULT_LIGHT_COLOR);
+            SKData encoded = img.Encode(SKEncodedImageFormat.Png, 100);
+            return encoded.ToArray();
         }
 
         internal static Size GetImageSize(Stream stream)
@@ -380,72 +170,13 @@ namespace OfficeTools
             return null;
         }
 
-        internal static OpenXmlElement? CloneStyle(Bookmark bookmark)
-        {
-            RunProperties? runProperties = bookmark.BookmarkStart.NextSibling<Run>()
-                                                 ?.Descendants<RunProperties>()
-                                                 ?.FirstOrDefault();
-
-            if (runProperties == null)
-            {
-                runProperties = bookmark.BookmarkEnd.PreviousSibling<Run>()
-                                     ?.Descendants<RunProperties>()
-                                     ?.FirstOrDefault();
-            }
-
-            if (runProperties == null)
-            {
-                runProperties = bookmark.BookmarkStart.Ancestors()
-                                       .Select(a => a.Descendants<RunProperties>().FirstOrDefault())
-                                       .FirstOrDefault();
-            }
-
-            return runProperties?.CloneNode(true);
-        }
-
-        internal static BookmarkEnd FindBookmarkEnd(BookmarkStart bmStart)
-        {
-            if (bmStart == null) throw new ArgumentException(nameof(bmStart));
-            if (bmStart.Name == "_GoBack") return null;
-
-            OpenXmlElement curentNode = bmStart.NextSibling();
-            if (curentNode == null) curentNode = bmStart.Parent;
-            while (curentNode != null)
-            {
-                //in case bookmart start node and end node are in the same level
-                if (curentNode is BookmarkEnd && ((BookmarkEnd)curentNode).Id == bmStart.Id)
-                {
-                    return (BookmarkEnd)curentNode;
-                }
-                else //in case bookmark start and bookmark end's ascendant are in the same level
-                {
-                    var bmEnd = curentNode.Descendants<BookmarkEnd>().FirstOrDefault(end => end.Id == bmStart.Id);
-                    if (bmEnd != null)
-                    {
-                        return bmEnd;
-                    }
-                }
-
-                //move next
-                if (curentNode.NextSibling() != null)
-                {
-                    curentNode = curentNode.NextSibling();
-                }
-                else //last node in the same level, move to find with parent level
-                {
-                    curentNode = curentNode.Parent;
-                }
-            }
-            return null;
-        }
-
         internal static List<string> GetAllRepeatProperties(JArray arr)
         {
             if (arr == null) return new List<string>();
             var repeatProperties = new List<string>();
             foreach (var item in arr)
             {
-                if(item is JObject)
+                if (item is JObject)
                     repeatProperties.AddRange(GetAllRepeatProperties((JObject)item));
             }
             return repeatProperties.Distinct().ToList();
@@ -468,39 +199,6 @@ namespace OfficeTools
                 }
             }
             return repeatProperties.Distinct().ToList();
-        }
-
-        internal static void DeleteRedundantElements(Bookmark bookmark)
-        {
-            OpenXmlElement curentNode = bookmark.BookmarkStart.NextSibling();
-            List<OpenXmlElement> nodesToRemove = new List<OpenXmlElement>();
-            while (curentNode != null)
-            {
-                if (curentNode == bookmark.BookmarkEnd)
-                    break;
-
-                if (curentNode is not (BookmarkStart or BookmarkEnd) && !curentNode.Descendants<BookmarkEnd>().Any(bm => bm == bookmark.BookmarkEnd) && !nodesToRemove.Contains(curentNode))
-                    nodesToRemove.Add(curentNode);
-
-                curentNode = curentNode.NextSibling();
-            }
-
-            curentNode = bookmark.BookmarkEnd.PreviousSibling();
-            while (curentNode != null)
-            {
-                if (curentNode == bookmark.BookmarkStart)
-                    break;
-
-                if (curentNode is not (BookmarkStart or BookmarkEnd) && !curentNode.Descendants<BookmarkStart>().Any(bm => bm == bookmark.BookmarkStart) && !nodesToRemove.Contains(curentNode))
-                    nodesToRemove.Add(curentNode);
-
-                curentNode = curentNode.PreviousSibling();
-            }
-
-            nodesToRemove.ForEach(node => node.Remove());
-
-            bookmark.BookmarkStart.Remove();
-            bookmark.BookmarkEnd.Remove();
         }
 
         internal static string GetRandomHexNumber(int digits)

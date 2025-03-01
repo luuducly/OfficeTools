@@ -1,21 +1,31 @@
 {
+    "Array": [1,2,3,4,5,6],
     "Text": "Content of text field.",
+    "Boolean": true,
+    "String": "test",
+    "Number": 1234.56789,
+    "Percent": 0.8512,
+    "Day":  2,
+    "Date": "1987-05-20T00:00:00Z",
     "TextInShape": "Content of text field in a shape.",
     "HTMLInShape": "Content of <a href='https://google.com'>HTML</a> field in a shape.",
     "BarcodeInShape": "123-456-78",
     "QrcodeInShape": "https://github.com/luuducly/OfficeTools",
     "RepeatParaGraph": [
         {
-            "RepeatNumber": "1st",
-            "RepeatPurpose": "testing first time."
+            "RepeatNumber": 1,
+            "RepeatPurpose": "testing first time.",
+            "Array":  [1,2,3,4]
         },
         {
-            "RepeatNumber": "2nd",
-            "RepeatPurpose": "testing second time."
+            "RepeatNumber": 2,
+            "RepeatPurpose": "testing second time.",
+            "Array": [ 2, 3, 4 ]
         },
         {
-            "RepeatNumber": "3rd",
-            "RepeatPurpose": "testing third time."
+            "RepeatNumber": 3,
+            "RepeatPurpose": "testing third time.",
+            "Array": [ 3, 4 ]
         }
     ],
     "RepeatTable": [

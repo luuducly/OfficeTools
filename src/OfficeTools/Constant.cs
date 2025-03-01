@@ -13,5 +13,52 @@ namespace OfficeTools
         public const int DEFAULT_QRCODE_SIZE = 512;
         public static readonly SKColor DEFAULT_DARK_COLOR = SKColor.Parse("000000");
         public static readonly SKColor DEFAULT_LIGHT_COLOR = SKColor.Empty;
+        public static readonly string PARSER_PARAM_REGEX = @"\s*(?:(?:""([^""]*(?:'[^""]*)*)"")|(?:'([^']*(?:\""[^']*)*)')|([^,'""]+))\s*(?:,|$)";
+        public static readonly string MERGEFIELD = "MERGEFIELD  ";
+        public static readonly string MERGEFORMAT = "  \\* MERGEFORMAT";
+    }
+
+    internal static class FunctionName
+    {
+        internal const string Default = "";
+        internal const string Sub = "sub";
+        internal const string Left = "left";
+        internal const string Right = "right";
+        internal const string Trim = "trim";
+        internal const string Upper = "upper";
+        internal const string Lower = "lower";
+        internal const string If = "if";
+        internal const string Currency = "currency";
+        internal const string Percentage = "percentage";
+        internal const string Replace = "replace";
+        internal const string BarCode = "barcode";
+        internal const string QRCode = "qrcode";
+        internal const string Image = "image";
+        internal const string Html = "html";
+        internal const string Word = "word";
+        internal const string Loop = "loop";
+        internal const string Table = "table";
+        internal const string EndLoop = "endloop";
+        internal const string EndTable = "endtable";
+        internal const string EndIf = "endif";
+    }
+
+    internal static class OperatorName
+    {
+        internal const string Gt = ">";
+        internal const string Lt = "<";
+        internal const string Eq1 = "==";
+        internal const string Eq2 = "=";
+        internal const string Neq1 = "!=";
+        internal const string Neq2 = "<>";
+        internal const string Geq = ">=";
+        internal const string Leq = "<=";
+    }
+
+    internal enum CompareValue
+    {
+        Eq = 1,
+        Gt = 2,
+        Lt = 4
     }
 }
