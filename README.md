@@ -7,11 +7,8 @@ Install-Package WordTemplater
 ```
 
 **1. Easy to design new template with merge field:**<br/>
-<p align="left" style="with:50%;display:inline-block">
-    <img alt="Word template file sample" src="https://github.com/user-attachments/assets/14b55b06-09ec-4450-8e35-0fc7108b1aaa"/>
-</p>
-<p align="left" style="with:50%;display:inline-block">
-    <img alt="Word template file sample" src="https://github.com/user-attachments/assets/f4d77bb8-1126-4e90-bf33-d80dff2e25cd"/>
+<p align="left">
+    <img alt="Word template file sample" src="https://github.com/user-attachments/assets/cf5c858b-4796-4040-840f-955155fa0358"/>
 </p>
 
 **2. Build-in support data type:** Text, Image, QrCode, BarCode, HTML, Document<br/>
