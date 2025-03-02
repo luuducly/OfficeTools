@@ -7,12 +7,10 @@ Install-Package WordTemplater
 ```
 
 **1. Easy to design new template with merge field:**<br/>
-<p align="left">
-    ![1](https://github.com/user-attachments/assets/14b55b06-09ec-4450-8e35-0fc7108b1aaa)
+<p align="left" style="with:50%;display:inline-block">
     <img alt="Word template file sample" src="https://github.com/user-attachments/assets/14b55b06-09ec-4450-8e35-0fc7108b1aaa"/>
 </p>
-<p align="left">
-    ![2](https://github.com/user-attachments/assets/f4d77bb8-1126-4e90-bf33-d80dff2e25cd)
+<p align="left" style="with:50%;display:inline-block">
     <img alt="Word template file sample" src="https://github.com/user-attachments/assets/f4d77bb8-1126-4e90-bf33-d80dff2e25cd"/>
 </p>
 
