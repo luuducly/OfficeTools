@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OfficeTools.Example
+namespace WordTemplater.Example
 {
     internal class Number2TextEvaluator : IEvaluator
     {

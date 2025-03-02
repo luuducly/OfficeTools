@@ -1,62 +1,56 @@
 {
-    "Array": [1,2,3,4,5,6],
-    "Text": "Content of text field.",
-    "Boolean": true,
-    "String": "test",
     "Number": 1234.56789,
+    "Text": "WordTemplater library.",
+    "Phone": "0982608020",
+    "Boolean": true,
+    "Toggle": null,
     "Percent": 0.8512,
-    "Day":  2,
     "Date": "1987-05-20T00:00:00Z",
-    "TextInShape": "Content of text field in a shape.",
-    "HTMLInShape": "Content of <a href='https://google.com'>HTML</a> field in a shape.",
-    "BarcodeInShape": "123-456-78",
-    "QrcodeInShape": "https://github.com/luuducly/OfficeTools",
-    "RepeatParaGraph": [
+    "HTML": "Test <a href='https://google.com'>HTML</a> content.",
+    "Barcode": "123-456-78",
+    "Qrcode": "https://github.com/luuducly/WordTemplater",
+    "ParaGraph": [
         {
-            "RepeatNumber": 1,
-            "RepeatPurpose": "testing first time.",
-            "Array":  [1,2,3,4]
+            "Number": 1,
+            "Text": "The Open XML SDK simplifies the task of manipulating Open XML packages and the underlying Open XML schema elements within a package. The Open XML SDK encapsulates many common tasks that developers perform on Open XML packages, so that you can perform complex operations with just a few lines of code.",
+            "Array": [ 1, 2, 3, 4 ]
         },
         {
-            "RepeatNumber": 2,
-            "RepeatPurpose": "testing second time.",
+            "Number": 2,
+            "Text": "The Open XML SDK simplifies the task of manipulating Open XML packages and the underlying Open XML schema elements within a package. The Open XML SDK encapsulates many common tasks that developers perform on Open XML packages, so that you can perform complex operations with just a few lines of code.",
             "Array": [ 2, 3, 4 ]
         },
         {
-            "RepeatNumber": 3,
-            "RepeatPurpose": "testing third time.",
+            "Number": 3,
+            "Text": "The Open XML SDK simplifies the task of manipulating Open XML packages and the underlying Open XML schema elements within a package. The Open XML SDK encapsulates many common tasks that developers perform on Open XML packages, so that you can perform complex operations with just a few lines of code.",
             "Array": [ 3, 4 ]
         }
     ],
-    "RepeatTable": [
+    "Table": [
         {
-            "Order": 1,
-            "Name": "Brian",
-            "DOB": "20/05/1987"
+            "Number": 1,
+            "Name": "LyLD0",
+            "DOB": "1987-05-20T00:00:00Z"
         },
         {
-            "Order": 2,
-            "Name": "Wade",
-            "DOB": "02/10/1992"
+            "Number": 2,
+            "Name": "LyLD2",
+            "DOB": "1988-05-20T00:00:00Z"
         },
         {
-            "Order": 3,
-            "Name": "Carlos",
-            "DOB": "20/03/1986"
+            "Number": 3,
+            "Name": "LyLD4",
+            "DOB": "1989-05-20T00:00:00Z"
         },
         {
-            "Order": 4,
-            "Name": "Dave",
-            "DOB": "30/09/2014"
+            "Number": 4,
+            "Name": "LyLD6",
+            "DOB": "1990-05-20T00:00:00Z"
         },
         {
-            "Order": 5,
-            "Name": "Gilbert",
-            "DOB": "20/05/2017"
+            "Number": 5,
+            "Name": "LyLD1",
+            "DOB": "1991-05-20T00:00:00Z"
         }
-    ],
-    "Toggle": null,
-    "FieldName": null,
-    "Header": "Header content.",
-    "Footer": "Footer content."
+    ]
 }

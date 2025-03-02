@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace OfficeTools
+namespace WordTemplater
 {
     public interface IEvaluator
     {
@@ -231,8 +231,7 @@ namespace OfficeTools
 
                     if (ifValue != null)
                     {
-                        var ifStrValue = Utils.ConvertStringValue(ifValue.ToString());
-                        var cp = Utils.CompareObjects(fieldValue, ifStrValue);
+                        var cp = Utils.CompareObjects(fieldValue, ifValue);
                         if (cp == CompareValue.Eq)
                         {
                             if (v1 != null) return v1.ToString();
@@ -260,48 +259,44 @@ namespace OfficeTools
         public string Evaluate(object fieldValue, List<object> parameters)
         {
             bool isOk = false;
-            if (fieldValue != null)
+            if (parameters.Count >= 2)
             {
-                if (parameters.Count >= 2)
+                var op = parameters[0]?.ToString();
+                var v1 = parameters[1]?.ToString();
+
+                if (op != null)
                 {
-                    var op = parameters[0]?.ToString();
-                    var v1 = parameters[1]?.ToString();
-
-                    if (op != null)
+                    var cp = Utils.CompareObjects(fieldValue, v1);
+                    switch (op)
                     {
-                        var ifValue = Utils.ConvertStringValue(v1);
-                        var cp = Utils.CompareObjects(fieldValue, ifValue);
-                        switch (op)
-                        {
-                            case OperatorName.Eq1:
-                            case OperatorName.Eq2:
-                                if (cp == CompareValue.Eq) isOk = true;
-                                else isOk = false;
-                                break;
-                            case OperatorName.Neq1:
-                            case OperatorName.Neq2:
-                                if (cp != CompareValue.Eq) isOk = true;
-                                else isOk = false;
-                                break;
-                            case OperatorName.Gt:
-                                if (cp == CompareValue.Gt) isOk = true;
-                                else isOk = false;
-                                break;
-                            case OperatorName.Lt:
-                                if (cp == CompareValue.Lt) isOk = true;
-                                else isOk = false;
-                                break;
-                            case OperatorName.Geq:
-                                if (cp == (CompareValue.Gt | CompareValue.Eq)) isOk = true;
-                                else isOk = false;
-                                break;
-                            case OperatorName.Leq:
-                                if (cp == (CompareValue.Lt | CompareValue.Eq)) isOk = true;
-                                else isOk = false;
-                                break;
-                        }
-
+                        case OperatorName.Eq1:
+                        case OperatorName.Eq2:
+                            if (cp == CompareValue.Eq) isOk = true;
+                            else isOk = false;
+                            break;
+                        case OperatorName.Neq1:
+                        case OperatorName.Neq2:
+                            if (cp != CompareValue.Eq) isOk = true;
+                            else isOk = false;
+                            break;
+                        case OperatorName.Gt:
+                            if (cp == CompareValue.Gt) isOk = true;
+                            else isOk = false;
+                            break;
+                        case OperatorName.Lt:
+                            if (cp == CompareValue.Lt) isOk = true;
+                            else isOk = false;
+                            break;
+                        case OperatorName.Geq:
+                            if (cp == (CompareValue.Gt | CompareValue.Eq)) isOk = true;
+                            else isOk = false;
+                            break;
+                        case OperatorName.Leq:
+                            if (cp == (CompareValue.Lt | CompareValue.Eq)) isOk = true;
+                            else isOk = false;
+                            break;
                     }
+
                 }
             }
             return isOk.ToString();

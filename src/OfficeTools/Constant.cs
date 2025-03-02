@@ -1,6 +1,6 @@
 ﻿using SkiaSharp;
 
-namespace OfficeTools
+namespace WordTemplater
 {
     internal static class Constant
     {
@@ -13,9 +13,14 @@ namespace OfficeTools
         public const int DEFAULT_QRCODE_SIZE = 512;
         public static readonly SKColor DEFAULT_DARK_COLOR = SKColor.Parse("000000");
         public static readonly SKColor DEFAULT_LIGHT_COLOR = SKColor.Empty;
+        public static readonly string DEFAULT_IMAGE_FILE_NAME = "{0}.png";
         public static readonly string PARSER_PARAM_REGEX = @"\s*(?:(?:""([^""]*(?:'[^""]*)*)"")|(?:'([^']*(?:\""[^']*)*)')|([^,'""]+))\s*(?:,|$)";
         public static readonly string MERGEFIELD = "MERGEFIELD  ";
         public static readonly string MERGEFORMAT = "  \\* MERGEFORMAT";
+        public static readonly string CURRENT_NODE = ".";
+        public static readonly string CURRENT_INDEX = "_index";
+        public static readonly string IS_LAST = "_last";
+
     }
 
     internal static class FunctionName

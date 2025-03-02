@@ -6,7 +6,7 @@ using SkiaSharp;
 using System.Text.RegularExpressions;
 using Microsoft.VisualBasic;
 
-namespace OfficeTools
+namespace WordTemplater
 {
     internal class Utils
     {
@@ -15,7 +15,7 @@ namespace OfficeTools
             var returnList = new List<object>();
             if (!string.IsNullOrEmpty(parametters))
             {
-                var paramList = ParseParameters(parametters.Replace("\\\"", "\""));
+                var paramList = ParseParameters(parametters.Replace("\\\"", "\"").Replace("\\\\","\\"));
 
                 foreach (var p in paramList)
                 {
@@ -44,7 +44,7 @@ namespace OfficeTools
                 }
                 else if (match.Groups[3].Success)
                 {
-                    parameters.Add(match.Groups[3].Value.Trim());
+                    parameters.Add(match.Groups[3].Value);
                 }
             }
 
@@ -55,7 +55,7 @@ namespace OfficeTools
         {
             if (string.IsNullOrEmpty(value)) return string.Empty;
 
-            if (int.TryParse(value, out var intVal)) return intVal;
+            if (Int64.TryParse(value, out var intVal)) return intVal;
 
             if (double.TryParse(value, out var dbVal)) return dbVal;
 
@@ -64,6 +64,8 @@ namespace OfficeTools
             if (DateTime.TryParse(value, out var dtVal)) return dtVal;
 
             if (bool.TryParse(value, out var blVal)) return blVal;
+
+            if ("null".Equals(value, StringComparison.OrdinalIgnoreCase)) return null;
 
             return value.ToString();
         }
@@ -93,6 +95,11 @@ namespace OfficeTools
                     return CompareValue.Lt | CompareValue.Gt;
                 }
             }
+            else if(obj1 == null)
+            {
+                if(obj2 == null) return CompareValue.Eq;
+                if (string.Compare(obj2.ToString(), "null", StringComparison.OrdinalIgnoreCase) == 0) return CompareValue.Eq;
+            }    
 
             return CompareValue.Lt | CompareValue.Gt;
         }

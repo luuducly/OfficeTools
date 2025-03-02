@@ -2,8 +2,9 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using DocumentFormat.OpenXml;
+using WP = DocumentFormat.OpenXml.Wordprocessing;
 
-namespace OfficeTools
+namespace WordTemplater
 {
     internal class RenderContext
     {
@@ -21,22 +22,151 @@ namespace OfficeTools
         {
             ChildNodes = new List<RenderContext>();
         }
+
+        public override string ToString()
+        {
+            return FieldName + ":" + Evaluator.ToString() + ":" + Parameters;
+        }
     }
 
     internal class MergeField
     {
-        internal FieldCode StartNode { get; set; }
-        internal FieldCode EndNode { get; set; }
+        internal MergeFieldTemplate StartField { get; set; }
+        internal MergeFieldTemplate EndField { get; set; }
         internal TypedOpenXmlPart ParentPart { get; set; }
     }
 
     internal class MergeFieldTemplate
     {
+        internal OpenXmlElement StartNode
+        {
+            get
+            {
+                if (_simpleField != null) return _simpleField;
+                return _beginFieldChar;
+            }
+        }
+
+        internal OpenXmlElement EndNode
+        {
+            get
+            {
+                if (_simpleField != null) return _simpleField;
+                return _endFieldChar;
+            }
+        }
+
+        private FieldChar _beginFieldChar;
+        private FieldChar _endFieldChar;
+        private FieldCode _fieldCode;
+        private SimpleField _simpleField;
+        private WP.Text _textNode;
+        private List<OpenXmlElement> _allElements;
+        private bool _isRemoved = false;
+
+        internal MergeFieldTemplate(OpenXmlElement node)
+        {
+            _allElements = new List<OpenXmlElement>();
+            if (node is FieldCode)
+            {
+                _fieldCode = (FieldCode)node;
+                _beginFieldChar = FindFieldChar(_fieldCode, FieldCharValues.Begin);
+                _endFieldChar = FindFieldChar(_fieldCode, FieldCharValues.End);
+            }
+            else if (node is SimpleField)
+            {
+                _simpleField = (SimpleField)node;
+                _allElements.Add(_simpleField);
+            }
+        }
+
+        internal List<OpenXmlElement> GetAllElements(bool reverse = false)
+        {
+            if (!reverse)
+            {
+                return _allElements.ToList();
+            }
+            else
+            {
+                var returnList = _allElements.ToList();
+                returnList.Reverse();
+                return returnList;
+            }
+        }
+
+        internal void RemoveAll()
+        {
+            if (_isRemoved) return;
+            foreach(var el in _allElements)
+            {
+                el.Remove();
+            }
+            _isRemoved = true;
+        }
+
+        internal WP.Text RemoveAllExceptTextNode()
+        {
+            if (_isRemoved) return _textNode;
+            if (_simpleField != null)
+            {
+                var run = _simpleField.Descendants<Run>().FirstOrDefault();
+                if(run != null)
+                {
+                    _textNode = run.Descendants<WP.Text>().FirstOrDefault();
+                    run.Remove();
+                    _simpleField.InsertBeforeSelf(run);
+                    _simpleField.Remove();
+                }    
+            }
+            else
+            {
+                foreach (var el in _allElements)
+                {
+                        if (_textNode == null)
+                        {
+                            _textNode = el.Descendants<WP.Text>().FirstOrDefault();
+                            if (_textNode == null) el.Remove();
+                        }
+                        else
+                            el.Remove();
+                }
+            }
+            _isRemoved = true;
+            return _textNode;
+        }
+
+        private FieldChar FindFieldChar(FieldCode fieldCode, FieldCharValues type)
+        {
+            if (fieldCode == null) return null;
+            var parent = fieldCode.Parent;
+            while(parent != null)
+            {
+                if (!_allElements.Contains(parent))
+                {
+                    if (type == FieldCharValues.End)
+                        _allElements.Add(parent);
+                    else
+                        _allElements.Insert(0, parent);
+
+                }
+                var fieldChar = parent.Descendants<FieldChar>().Where(fc => fc.FieldCharType == type).FirstOrDefault();
+                if(fieldChar != null) return fieldChar;
+                if (type == FieldCharValues.End)
+                    parent = parent.NextSibling();
+                else
+                    parent = parent.PreviousSibling();
+            }
+            return null;
+        }
+    }
+
+    internal class RepeatingTemplate
+    {
         internal OpenXmlElement LastNode;
         internal OpenXmlElement ParentNode;
         internal List<OpenXmlElement> TemplateElements;
 
-        internal MergeFieldTemplate()
+        internal RepeatingTemplate()
         {
             TemplateElements = new List<OpenXmlElement>();
         }
