@@ -1,17 +1,17 @@
-# OfficeTools
-A useful cross-platform library to export Word template with repeating data, image, QR code...
+# WordTemplater
+A useful cross-platform library to export Word template with formater, repeating data, image, QR code...
 
-Install [OfficeTools package](https://www.nuget.org/packages/OfficeTools) and its dependencies using NuGet Package Manager:
+Install [WordTemplater package](https://www.nuget.org/packages/WordTemplater) and its dependencies using NuGet Package Manager:
 ```powershell
-Install-Package OfficeTools 
+Install-Package WordTemplater 
 ```
 
-**1. Easy to design new template:**<br/>
+**1. Easy to design new template with merge field:**<br/>
 <p align="left">
-    <img alt="select text then insert a bookmark" src="https://github.com/luuducly/OfficeTools/assets/69654714/26426e2e-dd83-420e-a6c0-8a78b1109eb9"/>
+    <img alt="Word template file" src="https://github.com/luuducly/OfficeTools/assets/69654714/942a1843-1254-4c61-84d6-f3fdcde8a8d5"/>
 </p>
 <p align="left">
-    <img alt="enter bookmark name" src="https://github.com/luuducly/OfficeTools/assets/69654714/942a1843-1254-4c61-84d6-f3fdcde8a8d5"/>
+    <img alt="Word template file" src="https://github.com/luuducly/OfficeTools/assets/69654714/942a1843-1254-4c61-84d6-f3fdcde8a8d5"/>
 </p>
 
 **2. Build-in support data type:** Text, Image, QrCode, BarCode, HTML, Document<br/>
