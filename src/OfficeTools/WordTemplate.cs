@@ -141,7 +141,7 @@ namespace WordTemplater
         private List<RenderContext> PrepareRenderContext(OpenXmlElement element, TypedOpenXmlPart parentPart)
         {
             return PrepareRenderContext(new List<OpenXmlElement>() { element }, parentPart);
-        }    
+        }
 
         private List<RenderContext> PrepareRenderContext(List<OpenXmlElement> elements, TypedOpenXmlPart parentPart)
         {
@@ -150,10 +150,10 @@ namespace WordTemplater
             Stack<RenderContext> openContexts = new Stack<RenderContext>();
             List<OpenXmlElement> allMergeFieldNodes = new List<OpenXmlElement>();
 
-            foreach(var element in elements)
+            foreach (var element in elements)
             {
                 allMergeFieldNodes.AddRange(element.Descendants().Where(x => IsMergeFieldNode(x)).ToList());
-            }    
+            }
 
             for (int i = 0; i < allMergeFieldNodes.Count; i++)
             {
@@ -229,18 +229,18 @@ namespace WordTemplater
             {
                 fieldCode = ((FieldCode)node).Text;
             }
-            return fieldCode;
+            return fieldCode.Trim();
         }
 
 
         private void GetFormatTemplate(string code, RenderContext context)
         {
             if (string.IsNullOrEmpty(code)) return;
-            var i1 = code.IndexOf(Constant.MERGEFIELD);
+            var i1 = code.IndexOf(" ");
             var i2 = code.IndexOf(Constant.MERGEFORMAT);
             if (i1 >= 0 && i2 >= 0 && i2 > i1)
             {
-                code = code.Substring(i1 + Constant.MERGEFIELD.Length, i2 - i1 - Constant.MERGEFIELD.Length).Trim();
+                code = code.Substring(i1, i2 - i1).Trim();
                 if (code.StartsWith('"') && code.EndsWith('"'))
                 {
                     code = code.Substring(1);
@@ -365,7 +365,7 @@ namespace WordTemplater
                 foreach (var rc in renderContexts)
                 {
                     var value = dataObj.GetValue(rc.FieldName, StringComparison.OrdinalIgnoreCase);
-                    if (rc.Evaluator is LoopEvaluator && value is JArray)
+                    if (rc.Evaluator is LoopEvaluator && value is JArray && rc.MergeField.StartField != null && rc.MergeField.EndField != null)
                     {
                         RenderTemplate(rc, (JArray)value);
                     }
@@ -386,57 +386,60 @@ namespace WordTemplater
             List<RenderContext> allContexts = PrepareRenderContext(generatedNodes, rc.MergeField.ParentPart);
 
             var firstRC = Find(allContexts, rc);
-            if (firstRC.Parent != null)
+            if (firstRC != null)
             {
-                allContexts = firstRC.Parent.ChildNodes;
-            }
-
-            var firstIndex = allContexts.IndexOf(firstRC);
-            if (firstIndex >= 0)
-            {
-                var lastRC = rc;
-                for (int j = 0; j < arrData.Count; j++)
+                if (firstRC.Parent != null)
                 {
-                    var ct = allContexts[j + firstIndex];
-                    ct.Index = j;
-                    if (rc.Parent != null)
-                    {
-                        ct.Parent = rc.Parent;
-                        var pos = rc.Parent.ChildNodes.IndexOf(lastRC);
-                        if (pos > -1)
-                        {
-                            if (pos < rc.Parent.ChildNodes.Count - 1)
-                                rc.Parent.ChildNodes.Insert(pos + 1, ct);
-                            else
-                                rc.Parent.ChildNodes.Add(ct);
-                            lastRC = ct;
-                        }
-                    }
-                    else if (rc.Parent == null)
-                    {
-                        var pos = _renderContexts.IndexOf(lastRC);
-                        if (pos > -1)
-                        {
-                            if (pos < _renderContexts.Count - 1)
-                                _renderContexts.Insert(pos + 1, ct);
-                            else
-                                _renderContexts.Add(ct);
-                            lastRC = ct;
-                        }
-                    }
-                    var value = arrData[j];
-                    if (ct.ChildNodes.Count > 0)
-                        RenderTemplate(ct.ChildNodes.ToList(), value as JObject);
+                    allContexts = firstRC.Parent.ChildNodes;
                 }
 
-                if (rc.Parent == null)
+                var firstIndex = allContexts.IndexOf(firstRC);
+                if (firstIndex >= 0)
                 {
-                    _renderContexts.Remove(rc);
-                }
-                else
-                {
-                    rc.Parent.ChildNodes.Remove(rc);
-                    rc.Parent = null;
+                    var lastRC = rc;
+                    for (int j = 0; j < arrData.Count; j++)
+                    {
+                        var ct = allContexts[j + firstIndex];
+                        ct.Index = j;
+                        if (rc.Parent != null)
+                        {
+                            ct.Parent = rc.Parent;
+                            var pos = rc.Parent.ChildNodes.IndexOf(lastRC);
+                            if (pos > -1)
+                            {
+                                if (pos < rc.Parent.ChildNodes.Count - 1)
+                                    rc.Parent.ChildNodes.Insert(pos + 1, ct);
+                                else
+                                    rc.Parent.ChildNodes.Add(ct);
+                                lastRC = ct;
+                            }
+                        }
+                        else if (rc.Parent == null)
+                        {
+                            var pos = _renderContexts.IndexOf(lastRC);
+                            if (pos > -1)
+                            {
+                                if (pos < _renderContexts.Count - 1)
+                                    _renderContexts.Insert(pos + 1, ct);
+                                else
+                                    _renderContexts.Add(ct);
+                                lastRC = ct;
+                            }
+                        }
+                        var value = arrData[j];
+                        if (ct.ChildNodes.Count > 0)
+                            RenderTemplate(ct.ChildNodes.ToList(), value as JObject);
+                    }
+
+                    if (rc.Parent == null)
+                    {
+                        _renderContexts.Remove(rc);
+                    }
+                    else
+                    {
+                        rc.Parent.ChildNodes.Remove(rc);
+                        rc.Parent = null;
+                    }
                 }
             }
         }
@@ -447,9 +450,9 @@ namespace WordTemplater
 
             //find the ascendant of both start and end bookmark node
             var mfStart = context.MergeField.StartField.StartNode;
-            OpenXmlElement parentNode = mfStart.Parent;
+            OpenXmlElement parentNode = mfStart;
 
-            while (parentNode != null && !parentNode.Descendants().Any(el => el == context.MergeField.EndField.EndNode))
+            while (parentNode.Parent != null && !parentNode.Parent.Descendants().Any(el => el == context.MergeField.EndField.EndNode))
             {
                 parentNode = parentNode.Parent;
             }
@@ -457,68 +460,59 @@ namespace WordTemplater
             if (parentNode != null)
             {
                 OpenXmlElement lastChildNode = null;
-                OpenXmlElement startNode = null, endNode = null;
+                OpenXmlElement startNode = parentNode, endNode = null;
 
-                foreach (OpenXmlElement childNode in parentNode.ChildElements)
+                if (context.Evaluator is TableEvaluator)
                 {
-                    if (context.MergeField.StartField.StartNode == childNode || childNode.Descendants().Any(el => context.MergeField.StartField.StartNode == el))
+                    var tableParentNode = startNode;
+                    while (tableParentNode != null)
                     {
-                        startNode = childNode;
-                        if (context.Evaluator is TableEvaluator)
-                        {
-                            var tableParentNode = startNode;
-                            while (tableParentNode != null)
-                            {
-                                if (tableParentNode is WP.Table || tableParentNode.Descendants<WP.Table>().Any()
-                                    || tableParentNode == context.MergeField.EndField.EndNode
-                                    || tableParentNode.Descendants().Any(el => context.MergeField.EndField.EndNode == el))
-                                    break;
-                                tableParentNode = tableParentNode.NextSibling();
-                            }
+                        if (tableParentNode is WP.Table || tableParentNode.Descendants<WP.Table>().Any()
+                            || tableParentNode == context.MergeField.EndField.EndNode
+                            || tableParentNode.Descendants().Any(el => context.MergeField.EndField.EndNode == el))
+                            break;
+                        tableParentNode = tableParentNode.NextSibling();
+                    }
 
-                            WP.Table tableNode = null;
-                            if (tableParentNode is WP.Table)
-                                tableNode = (WP.Table)tableParentNode;
-                            else
-                                tableNode = tableParentNode.Descendants<WP.Table>().FirstOrDefault();
-                            if (tableNode != null)
+                    WP.Table tableNode = null;
+                    if (tableParentNode is WP.Table)
+                        tableNode = (WP.Table)tableParentNode;
+                    else
+                        tableNode = tableParentNode.Descendants<WP.Table>().FirstOrDefault();
+                    if (tableNode != null)
+                    {
+                        TableCell firstCell = null, lastCell = null;
+                        foreach (var row in tableNode.ChildElements.Where(r => r is WP.TableRow && r.Descendants().Any(x => IsMergeFieldNode(x))))
+                        {
+                            if (firstCell == null)
                             {
-                                TableCell firstCell = null, lastCell = null;
-                                foreach (var row in tableNode.ChildElements.Where(r => r is WP.TableRow && r.Descendants().Any(x=> IsMergeFieldNode(x))))
-                                {
-                                    if (firstCell == null)
-                                    {
-                                        firstCell = ((WP.TableRow)row).Descendants<TableCell>().FirstOrDefault();
-                                    }
-                                    mfTemplate.TemplateElements.Add(row);
-                                    lastChildNode = row;
-                                }
-                                lastCell = ((WP.TableRow)lastChildNode).Descendants<TableCell>().LastOrDefault();
-                                MoveMergeFieldTo(context.MergeField.StartField, firstCell, true);
-                                MoveMergeFieldTo(context.MergeField.EndField, lastCell, false);
-                                break;
+                                firstCell = ((WP.TableRow)row).Descendants<TableCell>().FirstOrDefault();
                             }
+                            mfTemplate.TemplateElements.Add(row);
+                            lastChildNode = row;
                         }
-                        else
+                        lastCell = ((WP.TableRow)lastChildNode).Descendants<TableCell>().LastOrDefault();
+                        MoveMergeFieldTo(context.MergeField.StartField, firstCell, true);
+                        MoveMergeFieldTo(context.MergeField.EndField, lastCell, false);
+                    }
+                }
+                else
+                {
+                    var curentNode = startNode;
+                    while (curentNode != null)
+                    {
+                        if (!mfTemplate.TemplateElements.Contains(curentNode))
                         {
-                            var curentNode = startNode;
-                            while (curentNode != null)
-                            {
-                                if (!mfTemplate.TemplateElements.Contains(curentNode))
-                                {
-                                    mfTemplate.TemplateElements.Add(curentNode);
-                                    lastChildNode = curentNode;
-                                }
+                            mfTemplate.TemplateElements.Add(curentNode);
+                            lastChildNode = curentNode;
+                        }
 
-                                if (curentNode == context.MergeField.EndField.EndNode || curentNode.Descendants().Any(el => context.MergeField.EndField.EndNode == el))
-                                {
-                                    endNode = curentNode;
-                                    break;
-                                }
-                                curentNode = curentNode.NextSibling();
-                            }
+                        if (curentNode == context.MergeField.EndField.EndNode || curentNode.Descendants().Any(el => context.MergeField.EndField.EndNode == el))
+                        {
+                            endNode = curentNode;
                             break;
                         }
+                        curentNode = curentNode.NextSibling();
                     }
                 }
 
